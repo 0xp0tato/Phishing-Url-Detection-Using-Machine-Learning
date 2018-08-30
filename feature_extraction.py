@@ -1,9 +1,7 @@
 import ipaddress
 import re
 import urllib
-from datetime import timedelta
-from google import google
-import phishtank
+from bs4 import BeautifulSoup
 import socket
 import requests
 import whois
@@ -24,11 +22,14 @@ def generate_data_set(url):
     if not re.match(r"^https?", url):
         url = "http://" + url
 
+
     # Stores the response of the given URL
     try:
         response = requests.get(url)
+        soup = BeautifulSoup(response.text, 'html.parser')
     except:
         response = ""
+
 
     # Extracts domain from the given URL
     domain = re.findall(r"://([^/]+)/?", url)[0]
@@ -100,6 +101,11 @@ def generate_data_set(url):
 
     # Domain_registeration_length
     expiration_date = whois_response.expiration_date
+    try:
+        expiration_date = min(expiration_date)
+    except:
+        pass
+
     today = time.strftime('%Y-%m-%d')
     today = datetime.strptime(today, '%Y-%m-%d')
     registration_length = abs((expiration_date - today).days)
@@ -110,26 +116,69 @@ def generate_data_set(url):
         data_set.append(1)
 
     # Favicon
-    data_set.append(-1)
+    try:
+        if re.search(r"<link rel=\"icon\"", response.text):
+            data_set.append(1)
+        else:
+            data_set.append(-1)
+    except:
+        dataset.append(-1)
 
     # port
     try:
         port = domain.split(":")[1]
         if port:
-            data_set.append(1)
-        else:
             data_set.append(-1)
+        else:
+            data_set.append(1)
     except:
-        data_set.append(-1)
-
-    # HTTPS_token
-    if re.findall("^https\-", domain):
-        data_set.append(-1)
-    else:
         data_set.append(1)
 
+    # HTTPS_token
+    if re.findall("^https\-", url):
+        data_set.append(1)
+    else:
+        data_set.append(-1)
+
     # Request_URL
-    data_set.append(-1)
+    i = 0
+    success = 0
+    for img in soup.find_all('img', src= True):
+       dots= [x.start(0) for x in re.finditer('\.', img['src'])]
+       if url in img['src'] or domain in img['src'] or len(dots)==1:
+          success = success + 1
+       i=i+1
+
+    for audio in soup.find_all('audio', src= True):
+       dots = [x.start(0) for x in re.finditer('\.', audio['src'])]
+       if url in audio['src'] or domain in audio['src'] or len(dots)==1:
+          success = success + 1
+       i=i+1
+
+    for embed in soup.find_all('embed', src= True):
+       dots=[x.start(0) for x in re.finditer('\.',embed['src'])]
+       if url in embed['src'] or domain in embed['src'] or len(dots)==1:
+          success = success + 1
+       i=i+1
+
+    for iframe in soup.find_all('iframe', src= True):
+       dots=[x.start(0) for x in re.finditer('\.',iframe['src'])]
+       if url in iframe['src'] or domain in iframe['src'] or len(dots)==1:
+          success = success + 1
+       i=i+1
+
+    try:
+       percentage = success/float(i) * 100
+    except:
+        data_set.append(1)
+
+    if percentage < 22.0 :
+       dataset.append(1)
+    elif((percentage >= 22.0) and (percentage < 61.0)) :
+       data_set.append(0)
+    else :
+       data_set.append(-1)
+
 
     # URL_of_Anchor
     data_set.append(-1)
