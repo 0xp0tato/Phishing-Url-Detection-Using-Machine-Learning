@@ -181,13 +181,64 @@ def generate_data_set(url):
 
 
     # URL_of_Anchor
-    data_set.append(-1)
+    i = 0
+    unsafe=0
+    for a in soup.find_all('a', href=True):
+    # 2nd condition was 'JavaScript ::void(0)' but we put JavaScript because the space between javascript and :: might not be
+            # there in the actual a['href']
+        if "#" in a['href'] or "javascript" in a['href'].lower() or "mailto" in a['href'].lower() or not (url in a['href'] or domain in a['href']):
+            unsafe = unsafe + 1
+        i = i + 1
+        # print a['href']
+    try:
+        percentage = unsafe / float(i) * 100
+    except:
+        data_set.append(1)
+    if percentage < 31.0:
+        data_set.append(1)
+        # return percentage
+    elif ((percentage >= 31.0) and (percentage < 67.0)):
+        data_set.append(0)
+    else:
+        data_set.append(-1)
 
     # Links_in_tags
-    data_set.append(-1)
+    i=0
+    success =0
+    for link in soup.find_all('link', href= True):
+       dots=[x.start(0) for x in re.finditer('\.',link['href'])]
+       if url in link['href'] or domain in link['href'] or len(dots)==1:
+          success = success + 1
+       i=i+1
+
+    for script in soup.find_all('script', src= True):
+       dots=[x.start(0) for x in re.finditer('\.',script['src'])]
+       if url in script['src'] or domain in script['src'] or len(dots)==1 :
+          success = success + 1
+       i=i+1
+    try:
+        percentage = success / float(i) * 100
+    except:
+        data_set.append(1)
+
+    if percentage < 17.0 :
+       data_set.append(1)
+    elif((percentage >= 17.0) and (percentage < 81.0)) :
+       data_set.append(0)
+    else :
+       data_set.append(-1)
 
     # SFH
-    data_set.append(0)
+    for form in soup.find_all('form', action= True):
+       if form['action'] =="" or form['action'] == "about:blank" :
+          data_set.append(-1)
+          break
+       elif url not in form['action'] and domain not in form['action']:
+           data_set.append(0)
+           break
+       else:
+             data_set.append(1)
+             break
 
     # Submitting_to_email
     if re.findall(r"[mail\(\)|mailto:?]", response.text):
