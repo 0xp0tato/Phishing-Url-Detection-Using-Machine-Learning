@@ -188,6 +188,7 @@ def generate_data_set(url):
 
 
     # URL_of_Anchor
+    percentage = 0
     i = 0
     unsafe=0
     for a in soup.find_all('a', href=True):
@@ -196,11 +197,13 @@ def generate_data_set(url):
         if "#" in a['href'] or "javascript" in a['href'].lower() or "mailto" in a['href'].lower() or not (url in a['href'] or domain in a['href']):
             unsafe = unsafe + 1
         i = i + 1
-        # print a['href']
+
+
     try:
         percentage = unsafe / float(i) * 100
     except:
         data_set.append(1)
+
     if percentage < 31.0:
         data_set.append(1)
         # return percentage
