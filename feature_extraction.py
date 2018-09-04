@@ -84,10 +84,11 @@ def generate_data_set(url):
         data_set.append(1)
 
     # double_slash_redirecting
-    if re.findall(r"[^https?:]//",url):
-        data_set.append(1)
-    else:
+    list=[x.start(0) for x in re.finditer('//', url)]
+    if list[len(list)-1]>6:
         data_set.append(-1)
+    else:
+        data_set.append(1)
 
     # Prefix_Suffix
     if re.findall(r"https?://[^\-]+-[^\-]+/", url):
@@ -320,12 +321,14 @@ def generate_data_set(url):
 
     # web_traffic
     try:
-        if global_rank > 0 and global_rank < 100000:
-            data_set.append(-1)
-        else:
-            data_set.append(1)
-    except:
+        rank = bs4.BeautifulSoup(urllib.urlopen("http://data.alexa.com/data?cli=10&dat=s&url=" + url).read(), "xml").find("REACH")['RANK']
+    except TypeError:
+        return -1
+    rank= int(rank)
+    if (rank<100000):
         data_set.append(1)
+    else:
+        data_set.append(0)
 
     # Page_Rank
     try:
