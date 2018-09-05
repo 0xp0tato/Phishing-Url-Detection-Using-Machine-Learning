@@ -17,15 +17,27 @@
         <div class="input-group-prepend">
           <span class="input-group-text" id="inputGroup-sizing-lg">Enter a URL:</span>
         </div>
-        <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg">
+        <input type="text" class="form-control" id="url" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg" value="">
       </div>
     </center>
 
     <center>
-      <button type="button">
+      <button type="button" class="getResult">
         Submit
       </button>
     </center>
 
   </body>
+  <script>
+
+
+
+   document.getElementsByClassName("getResult")[0].addEventListener("click",result);
+   function result(){
+        var url = document.getElementById('url').value;
+     var nextUrl = "result/"+url;
+     location.href = nextUrl;
+   }
+
+  </script>
 </html>
