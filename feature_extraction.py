@@ -312,7 +312,7 @@ def generate_data_set(url):
     except:
         dns=-1
     if dns == -1:
-        status.append(-1)
+        data_set.append(-1)
     else:
         if registration_length / 365 <= 1:
             data_set.append(-1)
