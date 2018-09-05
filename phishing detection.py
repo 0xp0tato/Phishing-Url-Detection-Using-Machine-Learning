@@ -25,9 +25,12 @@ X_input = input("Enter a Url:")
 X_new=feature_extraction.generate_data_set(X_input)
 X_new = np.array(X_new).reshape(1,-1)
 
-prediction = clf.predict(X_new)
-print(int(prediction[0]))
-if prediction == -1:
+try:
+    prediction = clf.predict(X_new)
+    print(int(prediction[0]))
+    if prediction == -1:
+        print("Phish")
+    else:
+        print("Legitimate")
+except:
     print("Phish")
-else:
-    print("Legitimate")

@@ -1,6 +1,6 @@
 import ipaddress
 import re
-import urllib
+import urllib.request
 from bs4 import BeautifulSoup
 import socket
 import requests
@@ -321,7 +321,7 @@ def generate_data_set(url):
 
     # web_traffic
     try:
-        rank = bs4.BeautifulSoup(urllib.urlopen("http://data.alexa.com/data?cli=10&dat=s&url=" + url).read(), "xml").find("REACH")['RANK']
+        rank = BeautifulSoup(urllib.request.urlopen("http://data.alexa.com/data?cli=10&dat=s&url=" + url).read(), "xml").find("REACH")['RANK']
     except TypeError:
         return -1
     rank= int(rank)
