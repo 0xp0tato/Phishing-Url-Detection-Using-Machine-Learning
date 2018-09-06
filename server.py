@@ -12,10 +12,11 @@ app = Flask(__name__)
 def hello():
     return render_template("getInput.html")
 
-@app.route('/result/<urlname>')
-def result(urlname):
+@app.route('/result')
+def result():
+    urlname  = request.args['name']
     result  = phishing_detection.getResult(urlname)
-    return render_template("result.html",result =result)
+    return result
 
 if __name__ == '__main__':
     app.run(debug=True)
