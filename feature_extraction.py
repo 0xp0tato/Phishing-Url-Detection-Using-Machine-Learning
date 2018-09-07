@@ -4,6 +4,7 @@ import urllib.request
 from bs4 import BeautifulSoup
 import socket
 import requests
+from googlesearch import search
 import whois
 from datetime import datetime
 import time
@@ -340,13 +341,11 @@ def generate_data_set(url):
         data_set.append(1)
 
     # Google_Index
-    try:
-        if global_rank > 0 and global_rank < 100000:
-            data_set.append(-1)
-        else:
-            data_set.append(1)
-    except:
+    site=search(url, 5)
+    if site:
         data_set.append(1)
+    else:
+        data_set.append(-1)
 
     # Links_pointing_to_page
     number_of_links = len(re.findall(r"<a href=", response.text))
