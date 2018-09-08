@@ -6,12 +6,10 @@
     <title></title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <style>
-      body{
-        background: url("/Images/phish.jpg");
-      }
+
     </style>
   </head>
-  <body>
+  <body style="background-image: url('https://www.it.ucla.edu/sites/g/files/yaccgq956/f/february-security-article-image-phishing-blank992x500.jpg');">
 
     <center>
       <div class="input-group input-group-lg" style="width: 1000px;">
@@ -45,7 +43,7 @@
  			},
  			type : 'GET',
  			url : '/result'
- 		}).always(div.innerHTML= '<h1>Wait big things takes time...</h1>')
+ 		}).always(div.innerHTML= '<h1>Processing...</h1>')
  		.done(function(data) {
 
  			if (data.error) {
