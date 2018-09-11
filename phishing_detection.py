@@ -31,7 +31,6 @@ def getResult(url):
 
     try:
         prediction = clf.predict(X_new)
-        # return int(prediction[0])
         if prediction == -1:
             return "Phishy"
         else:

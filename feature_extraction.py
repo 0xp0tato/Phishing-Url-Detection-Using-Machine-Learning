@@ -50,14 +50,14 @@ def generate_data_set(url):
     except:
         global_rank = -1
 
-    # having_IP_Address
+    # 1.having_IP_Address
     try:
         ipaddress.ip_address(url)
         data_set.append(-1)
     except:
         data_set.append(1)
 
-    # URL_Length
+    # 2.URL_Length
     if len(url) < 54:
         data_set.append(1)
     elif len(url) >= 54 and len(url) <= 75:
@@ -65,7 +65,7 @@ def generate_data_set(url):
     else:
         data_set.append(-1)
 
-    # Shortining_Service
+    # 3.Shortining_Service
     match=re.search('bit\.ly|goo\.gl|shorte\.st|go2l\.ink|x\.co|ow\.ly|t\.co|tinyurl|tr\.im|is\.gd|cli\.gs|'
                     'yfrog\.com|migre\.me|ff\.im|tiny\.cc|url4\.eu|twit\.ac|su\.pr|twurl\.nl|snipurl\.com|'
                     'short\.to|BudURL\.com|ping\.fm|post\.ly|Just\.as|bkite\.com|snipr\.com|fic\.kr|loopt\.us|'
@@ -78,26 +78,26 @@ def generate_data_set(url):
     else:
         data_set.append(1)
 
-    # having_At_Symbol
+    # 4.having_At_Symbol
     if re.findall("@", url):
         data_set.append(-1)
     else:
         data_set.append(1)
 
-    # double_slash_redirecting
+    # 5.double_slash_redirecting
     list=[x.start(0) for x in re.finditer('//', url)]
     if list[len(list)-1]>6:
         data_set.append(-1)
     else:
         data_set.append(1)
 
-    # Prefix_Suffix
+    # 6.Prefix_Suffix
     if re.findall(r"https?://[^\-]+-[^\-]+/", url):
         data_set.append(-1)
     else:
         data_set.append(1)
 
-    # having_Sub_Domain
+    # 7.having_Sub_Domain
     if len(re.findall("\.", url)) == 1:
         data_set.append(1)
     elif len(re.findall("\.", url)) == 2:
@@ -105,35 +105,42 @@ def generate_data_set(url):
     else:
         data_set.append(-1)
 
-    # SSLfinal_State
-    data_set.append(-1)
+    # 8.SSLfinal_State
+    try:
+        if response.text:
+            data_set.append(1)
+    except:
+        data_set.append(-1)
 
-    # Domain_registeration_length
+    # 9.Domain_registeration_length
     expiration_date = whois_response.expiration_date
+    registration_length = 0
     try:
         expiration_date = min(expiration_date)
+        today = time.strftime('%Y-%m-%d')
+        today = datetime.strptime(today, '%Y-%m-%d')
+        registration_length = abs((expiration_date - today).days)
+
+        if registration_length / 365 <= 1:
+            data_set.append(-1)
+        else:
+            data_set.append(1)
     except:
         pass
 
-    today = time.strftime('%Y-%m-%d')
-    today = datetime.strptime(today, '%Y-%m-%d')
-    registration_length = abs((expiration_date - today).days)
-
-    if registration_length / 365 <= 1:
-        data_set.append(-1)
-    else:
-        data_set.append(1)
-
-    # Favicon
+    # 10.Favicon
     try:
-        if re.search(r"<link rel=\"icon\"", response.text):
-            data_set.append(1)
-        else:
-            data_set.append(-1)
+        for head in soup.find_all('head'):
+            for head.link in soup.find_all('link', href=True):
+                dots = [x.start(0) for x in re.finditer('\.', head.link['href'])]
+                if wiki in head.link['href'] or len(dots) == 1 or domain in head.link['href']:
+                    data_set.append(1)
+                else:
+                    data_set.append(-1)
     except:
-        dataset.append(-1)
+        data_set.append(-1)
 
-    # port
+    #11. port
     try:
         port = domain.split(":")[1]
         if port:
@@ -143,13 +150,13 @@ def generate_data_set(url):
     except:
         data_set.append(1)
 
-    # HTTPS_token
+    #12. HTTPS_token
     if re.findall("^https\-", url):
         data_set.append(1)
     else:
         data_set.append(-1)
 
-    # Request_URL
+    #13. Request_URL
     i = 0
     success = 0
     for img in soup.find_all('img', src= True):
@@ -189,7 +196,7 @@ def generate_data_set(url):
 
 
 
-    # URL_of_Anchor
+    #14. URL_of_Anchor
     percentage = 0
     i = 0
     unsafe=0
@@ -208,13 +215,12 @@ def generate_data_set(url):
 
     if percentage < 31.0:
         data_set.append(1)
-        # return percentage
     elif ((percentage >= 31.0) and (percentage < 67.0)):
         data_set.append(0)
     else:
         data_set.append(-1)
 
-    # Links_in_tags
+    #15. Links_in_tags
     i=0
     success =0
     for link in soup.find_all('link', href= True):
@@ -240,7 +246,7 @@ def generate_data_set(url):
     else :
        data_set.append(-1)
 
-    # SFH
+    #16. SFH
     for form in soup.find_all('form', action= True):
        if form['action'] =="" or form['action'] == "about:blank" :
           data_set.append(-1)
@@ -252,19 +258,19 @@ def generate_data_set(url):
              data_set.append(1)
              break
 
-    # Submitting_to_email
+    #17. Submitting_to_email
     if re.findall(r"[mail\(\)|mailto:?]", response.text):
         data_set.append(1)
     else:
         data_set.append(-1)
 
-    # Abnormal_URL
+    #18. Abnormal_URL
     if response.text == "":
         data_set.append(1)
     else:
         data_set.append(-1)
 
-    # Redirect
+    #19. Redirect
     if len(response.history) <= 1:
         data_set.append(-1)
     elif len(response.history) <= 4:
@@ -272,31 +278,31 @@ def generate_data_set(url):
     else:
         data_set.append(1)
 
-    # on_mouseover
+    #20. on_mouseover
     if re.findall("<script>.+onmouseover.+</script>", response.text):
         data_set.append(1)
     else:
         data_set.append(-1)
 
-    # RightClick
+    #21. RightClick
     if re.findall(r"event.button ?== ?2", response.text):
         data_set.append(1)
     else:
         data_set.append(-1)
 
-    # popUpWidnow
+    #22. popUpWidnow
     if re.findall(r"alert\(", response.text):
         data_set.append(1)
     else:
         data_set.append(-1)
 
-    # Iframe
+    #23. Iframe
     if re.findall(r"[<iframe>|<frameBorder>]", response.text):
         data_set.append(1)
     else:
         data_set.append(-1)
 
-    # age_of_domain
+    #24. age_of_domain
     try:
         registration_date = re.findall(r'Registration Date:</div><div class="df-value">([^<]+)</div>', whois_response.text)[0]
         if diff_month(date.today(), date_parse(registration_date)) >= 6:
@@ -306,7 +312,7 @@ def generate_data_set(url):
     except:
         data_set.append(1)
 
-    # DNSRecord
+    #25. DNSRecord
     dns = 1
     try:
         d = whois.whois(domain)
@@ -320,18 +326,18 @@ def generate_data_set(url):
         else:
             data_set.append(1)
 
-    # web_traffic
+    #26. web_traffic
     try:
         rank = BeautifulSoup(urllib.request.urlopen("http://data.alexa.com/data?cli=10&dat=s&url=" + url).read(), "xml").find("REACH")['RANK']
+        rank= int(rank)
+        if (rank<100000):
+            data_set.append(1)
+        else:
+            data_set.append(0)
     except TypeError:
-        return -1
-    rank= int(rank)
-    if (rank<100000):
-        data_set.append(1)
-    else:
-        data_set.append(0)
+        data_set.append(-1)
 
-    # Page_Rank
+    #27. Page_Rank
     try:
         if global_rank > 0 and global_rank < 100000:
             data_set.append(-1)
@@ -340,14 +346,14 @@ def generate_data_set(url):
     except:
         data_set.append(1)
 
-    # Google_Index
+    #28. Google_Index
     site=search(url, 5)
     if site:
         data_set.append(1)
     else:
         data_set.append(-1)
 
-    # Links_pointing_to_page
+    #29. Links_pointing_to_page
     number_of_links = len(re.findall(r"<a href=", response.text))
     if number_of_links == 0:
         data_set.append(1)
@@ -356,7 +362,7 @@ def generate_data_set(url):
     else:
         data_set.append(-1)
 
-    # Statistical_report
+    #30. Statistical_report
     url_match=re.search('at\.ua|usa\.cc|baltazarpresentes\.com\.br|pe\.hu|esy\.es|hol\.es|sweddy\.com|myjino\.ru|96\.lt|ow\.ly',url)
     try:
         ip_address=socket.gethostbyname(domain)
