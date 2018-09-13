@@ -6,26 +6,59 @@
     <title>Phishing Url Detection</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <style>
+@keyframes dot-keyframes {
+  0% {
+    opacity: 0.4;
+    transform: scale(1, 1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2, 1.2);
+  }
+  100% {
+    opacity: 0.4;
+    transform: scale(1, 1);
+  }
+}
+.loading-dots {
+  text-align: center;
+  width: 100%;
+}
+.loading-dots--dot {
+  animation: dot-keyframes 1.5s infinite ease-in-out;
+  background-color: #fff;
+  border-radius: 10px;
+  display: inline-block;
+  height: 10px;
+  width: 10px;
+  margin: 15px;
+}
+.loading-dots--dot:nth-child(2) {
+  animation-delay: 0.5s;
+}
+.loading-dots--dot:nth-child(3) {
+  animation-delay: 1s;
+}
 
     </style>
   </head>
   <body style="background-image: url('https://www.it.ucla.edu/sites/g/files/yaccgq956/f/february-security-article-image-phishing-blank992x500.jpg');">
-    <center><h1>Phishing Url Detection</h1></center>
-    <center>
-      <div class="input-group input-group-lg" style="width: 1000px;">
+    
+    <center style="margin-top: 90px;">
+     <h1 class="text-white">Phishing Url Detection</h1>
+      <div class="input-group input-group-lg" style="width: 800px;margin-top: 50px">
         <div class="input-group-prepend">
           <span class="input-group-text" id="inputGroup-sizing-lg">Enter a URL:</span>
         </div>
-        <input type="text" class="form-control" id="url" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg" value="">
+        <input type="text" class="form-control" id="url"   value="">
+          <button type="submit" class="btn getResult btn-primary btn-lg mb-2" style="margin-left: 10px">Submit</button>
+
       </div>
+      <div class="result"></div>
+
     </center>
 
-    <center>
-      <button type="button" class="getResult">
-        Submit
-      </button>
-    </center>
-    <div class="result"></div>
+   
 
   </body>
   <script>
@@ -43,7 +76,7 @@
  			},
  			type : 'GET',
  			url : '/result'
- 		}).always(div.innerHTML= '<h1>Processing...</h1>')
+ 		}).always(div.innerHTML= '<div class="loading-dots mt-4"><div class="loading-dots--dot"></div><div class="loading-dots--dot"></div><div class="loading-dots--dot"></div></div>')
  		.done(function(data) {
 
  			if (data.error) {
@@ -51,7 +84,7 @@
  			}
  			else {
 
-        var newHTML = '<h2>Your Site is '+data+'</h2>';
+        var newHTML = '<h3 class="text-white mt-4">Your Site is '+data+'</h3>';
         div.innerHTML=  newHTML;
       }
 
