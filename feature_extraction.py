@@ -126,19 +126,16 @@ def generate_data_set(url):
         else:
             data_set.append(1)
     except:
-        pass
+        data_set.append(-1)
 
     # 10.Favicon
-    try:
-        for head in soup.find_all('head'):
-            for head.link in soup.find_all('link', href=True):
-                dots = [x.start(0) for x in re.finditer('\.', head.link['href'])]
-                if wiki in head.link['href'] or len(dots) == 1 or domain in head.link['href']:
-                    data_set.append(1)
-                else:
-                    data_set.append(-1)
-    except:
-        data_set.append(-1)
+    for head in soup.find_all('head'):
+        for head.link in soup.find_all('link', href=True):
+            dots = [x.start(0) for x in re.finditer('\.', head.link['href'])]
+            if url in head.link['href'] or len(dots) == 1 or domain in head.link['href']:
+                data_set.append(1)
+            else:
+                data_set.append(-1)
 
     #11. port
     try:
@@ -151,7 +148,7 @@ def generate_data_set(url):
         data_set.append(1)
 
     #12. HTTPS_token
-    if re.findall("^https\-", url):
+    if re.findall(r"^https://", url):
         data_set.append(1)
     else:
         data_set.append(-1)
