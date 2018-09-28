@@ -133,13 +133,18 @@ def generate_data_set(url):
     if soup == -999:
         data_set.append(-1)
     else:
-        for head in soup.find_all('head'):
-            for head.link in soup.find_all('link', href=True):
-                dots = [x.start(0) for x in re.finditer('\.', head.link['href'])]
-                if url in head.link['href'] or len(dots) == 1 or domain in head.link['href']:
-                    data_set.append(1)
-                else:
-                    data_set.append(-1)
+        try:
+            for head in soup.find_all('head'):
+                for head.link in soup.find_all('link', href=True):
+                    dots = [x.start(0) for x in re.finditer('\.', head.link['href'])]
+                    if url in head.link['href'] or len(dots) == 1 or domain in head.link['href']:
+                        data_set.append(1)
+                        raise StopIteration
+                    else:
+                        data_set.append(-1)
+                        raise StopIteration
+        except StopIteration:
+            pass
 
     #11. port
     try:
@@ -417,7 +422,7 @@ def generate_data_set(url):
             data_set.append(1)
     except:
         print ('Connection problem. Please check your internet connection!')
-    
+
 
     print (data_set)
     return data_set
