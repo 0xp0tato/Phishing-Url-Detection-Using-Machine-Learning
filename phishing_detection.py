@@ -32,8 +32,8 @@ def getResult(url):
     try:
         prediction = clf.predict(X_new)
         if prediction == -1:
-            return "Phishy"
+            return "Phishing Url"
         else:
-            return "Legitimate"
+            return "Legitimate Url"
     except:
-        return "Phishy"
+        return "Phishing Url"
