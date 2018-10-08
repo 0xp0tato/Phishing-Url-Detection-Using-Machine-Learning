@@ -1,0 +1,20 @@
+    filter_id = request.args.get('filter_id')
+    merchant_id = request.args.get('merchant_id')
+    split_percentage = request.args.get('split_percentage')*0.01
+
+    filterQuery = "select custIds from filters WHERE id = " + str(filter_id)
+    filter_df = fetchCustomQuery(filterQuery,engine)
+
+    custIds = filter_df['custIds'].iloc[0]
+
+    customerQuery = "SELECT customer_id,rfm_score FROM `customers_merchant_map` cm where cm.merchant_id = "+str(merchant_id)+" and cm.is_active = 1 and customer_id in ("+str(custIds)+") order by last_visited asc"
+    customer_rfm_df = fetchCustomQuery(customerQuery,engine)
+
+    final_customers = pd.DataFrame()
+
+    clusters_formed = customer_rfm_df.rfm_score.unique()
+
+    for cluster in clusters_formed:
+        customers_filtered_df = customer_rfm_df[customer_rfm_df['rfm_score'] == cluster]
+        customers_filtered_df = customers_filtered_df[0:customers_filtered_df.shape(0)*split_percentage]
+        final_customers.append(customers_filtered_df,ignore_index=True)
